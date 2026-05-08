@@ -6,17 +6,31 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import STATIC_URL_PATH
+from .const import DOMAIN, STATIC_URL_PATH
+
+
+async def _async_register_static(hass: HomeAssistant) -> None:
+    """Register our static assets path (idempotent-ish)."""
+    # Avoid re-registering on reloads; the HTTP component doesn't provide an official unregister.
+    if hass.data.get(f"{DOMAIN}_static_registered"):
+        return
+
+    static_dir = Path(__file__).parent / "static"
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(STATIC_URL_PATH, str(static_dir), cache_headers=False)]
+    )
+    hass.data[f"{DOMAIN}_static_registered"] = True
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up (so assets are available even if the config entry wasn't created yet)."""
+    await _async_register_static(hass)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Register static assets used by the global rebranding script."""
-    static_dir = Path(__file__).parent / "static"
-
-    # Use async registration (register_static_path is deprecated and removed in 2025.7)
-    await hass.http.async_register_static_paths(
-        [StaticPathConfig(STATIC_URL_PATH, str(static_dir), cache_headers=False)]
-    )
+    await _async_register_static(hass)
 
     return True
 
