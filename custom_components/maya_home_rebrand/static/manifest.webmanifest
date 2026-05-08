@@ -1,0 +1,13 @@
+{
+  "name": "Maya Home",
+  "short_name": "Maya Home",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1320",
+  "theme_color": "#0B1320",
+  "icons": [
+    { "src": "/maya-home-rebrand/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/maya-home-rebrand/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+
